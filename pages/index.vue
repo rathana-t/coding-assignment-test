@@ -6,7 +6,9 @@
     <div
       class="fixed top-0 left-0 z-20 m-20 bg-slate-50 rounded-md p-10 w-[80%] h-[80%] flex flex-col items-end"
     >
-      <modal :country="modalCountry" class="max-h-[90%] overflow-y-auto" />
+      <div class="max-h-[90%] w-full overflow-y-auto">
+        <modal :country="modalCountry" />
+      </div>
       <button
         class="bottom-0 right-0 p-2 rounded-md bg-slate-500 text-white"
         @click="modalCountry = null"
@@ -96,15 +98,14 @@ const limit = ref(25);
 const sortBy = ref("");
 const search = ref("");
 
-const totalData = computed(() => data.value.length);
-
 const modalCountry = ref(null);
+const totalData = computed(() => data.value?.length);
 
 async function fetch(url) {
   try {
     return await $fetch(`${baseUrl}${url}`);
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
 }
 
@@ -114,7 +115,6 @@ onBeforeMount(async () => {
 });
 
 function openModal(country) {
-  console.log(country);
   modalCountry.value = country;
 }
 
@@ -130,6 +130,10 @@ function gotoPage(pageNumber) {
 }
 
 function sortData(sort) {
+  if (!sort) {
+    return;
+  }
+
   if (sort === "asc") {
     data.value.sort((a, b) => a.name.official.localeCompare(b.name.official));
   } else {
@@ -150,11 +154,12 @@ async function searchCountry() {
   }
 
   setValue();
+  sortData(sortBy.value);
 }
 
 function setValue() {
   page.value = 1;
-  dataByPage.value = data.value.slice(0, limit.value);
-  lastPage.value = Math.ceil(data.value.length / limit.value);
+  dataByPage.value = data.value?.slice(0, limit.value);
+  lastPage.value = Math.ceil(data.value?.length / limit.value);
 }
 </script>

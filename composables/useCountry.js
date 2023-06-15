@@ -6,13 +6,6 @@ export default function useCountry() {
     }
 
     function getTheNativeName(nativeName) {
-        // const nativeNameArray = [];
-        // for (const key in nativeName) {
-        //   nativeNameArray.push(`(${key})  ${nativeName[key]?.official}`);
-        // }
-        // return nativeNameArray.join(", ");
-        
-        // return nativeName?.[Object.keys(nativeName)[0]]?.official;
         for (const key in nativeName) {
           return nativeName[key]?.official;
         }
@@ -20,5 +13,14 @@ export default function useCountry() {
         return "N/A";
       }
 
-    return { getCallingCode, getTheNativeName }
+    function getItemObject(item) {
+        return Object.keys(item).map((key) => {
+          return {
+            key,
+            value: Array.isArray(item[key]) ? item[key].join(", ") : item[key],
+          };
+        });
+    }
+
+    return { getCallingCode, getTheNativeName, getItemObject }
 }
