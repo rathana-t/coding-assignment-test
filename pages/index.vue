@@ -37,7 +37,9 @@
       <div>
         Sort country name by:
         <div class="flex justify-end">
-          <div class="flex justify-center items-center">
+          <div class="flex justify-center items-center"
+          :disabled="!data.value?.length"
+          >
             <button
               class="border-2 border-gray-300 p-1 rounded-md w-20"
               :class="{ 'bg-blue-500 text-white': sortBy === 'asc' }"
@@ -101,19 +103,19 @@ const search = ref("");
 const modalCountry = ref(null);
 const totalData = computed(() => data.value?.length);
 
-async function fetch(url) {
+async function fetchData(url) {
   try {
-    return await $fetch(`${baseUrl}${url}`);
+    return await fetch(`${baseUrl}${url}`).then((res) => res.json());
   } catch (error) {
     console.error(error);
   }
 }
 
 onBeforeMount(async () => {
-  data.value = await fetch("/all");
-  setValue();
-});
-
+    data.value = await fetchData("/all");
+    setValue();
+  });
+  
 function openModal(country) {
   modalCountry.value = country;
 }
@@ -135,9 +137,9 @@ function sortData(sort) {
   }
 
   if (sort === "asc") {
-    data.value.sort((a, b) => a.name.official.localeCompare(b.name.official));
+    data.value?.sort((a, b) => a.name.official.localeCompare(b.name.official));
   } else {
-    data.value.sort((a, b) => b.name.official.localeCompare(a.name.official));
+    data.value?.sort((a, b) => b.name.official.localeCompare(a.name.official));
   }
 
   sortBy.value = sort;
@@ -148,9 +150,9 @@ async function searchCountry() {
   const searchValue = search.value.toLowerCase().trim();
 
   if (searchValue) {
-    data.value = await fetch(`/name/${searchValue}`);
+    data.value = await fetchData(`/name/${searchValue}`);
   } else {
-    data.value = await fetch("/all");
+    data.value = await fetchData("/all");
   }
 
   setValue();
@@ -158,6 +160,7 @@ async function searchCountry() {
 }
 
 function setValue() {
+  console.log(data.value);
   page.value = 1;
   dataByPage.value = data.value?.slice(0, limit.value);
   lastPage.value = Math.ceil(data.value?.length / limit.value);
